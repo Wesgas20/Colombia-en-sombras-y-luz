@@ -269,6 +269,8 @@
   @media (prefers-reduced-motion: reduce){
     .muni-shape{ opacity:1; animation:none; }
     .muni-shape.visited{ animation:none; filter:drop-shadow(0 0 3px var(--glow-soft-b)); }
+    .place-pin{ transition:opacity .15s ease; transform:none; }
+    .route-line{ transition:opacity .15s ease; }
   }
 
   .tooltip{
@@ -317,6 +319,157 @@
   }
   .zoom-controls button:hover{ background:var(--surface-3); border-color:var(--mid); }
   #zoomResetBtn{ font-size:13px; }
+  #expandBtn{ font-size:14px; }
+
+  /* ---------- EXPANDED MAP MODE ---------- */
+  .map-stage.expanded{
+    position:fixed;
+    inset:0;
+    z-index:400;
+    border-radius:0;
+    padding:0;
+    background:var(--void);
+  }
+  .map-stage.expanded #map{
+    max-width:none;
+    max-height:none;
+    width:100%;
+    height:100%;
+  }
+  .map-stage.expanded .zoom-controls{ right:18px; bottom:18px; }
+  .map-stage.expanded .zoom-controls button{ width:38px; height:38px; font-size:19px; }
+
+  /* ---------- VIEW TABS + RUTAS ---------- */
+  .view-tabs{
+    display:flex;
+    gap:6px;
+    padding-top:16px;
+  }
+  .view-tab{
+    background:none;
+    border:1px solid var(--line);
+    color:var(--dim);
+    font-size:12.5px;
+    padding:8px 16px;
+    border-radius:20px;
+    transition:border-color .15s ease, color .15s ease, background .15s ease;
+  }
+  .view-tab.active{ background:var(--surface-2); border-color:var(--line-bright); color:var(--ink); }
+  .view-tab:hover:not(.active){ color:var(--mid); border-color:var(--line-bright); }
+
+  .rutas-panel{
+    margin-top:12px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    align-items:flex-start;
+  }
+  .rutas-panel[hidden]{ display:none; }
+  .ruta-chip{
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    color:var(--ink);
+    font-size:12.5px;
+    padding:9px 15px;
+    border-radius:12px;
+    text-align:left;
+    transition:border-color .15s ease, background .15s ease;
+    max-width:220px;
+  }
+  .ruta-chip:hover{ border-color:var(--line-bright); background:var(--surface-3); }
+  .ruta-chip.active{ border-color:var(--glow); background:var(--glow-fill); color:var(--glow-strong); }
+  .ruta-paradas{ display:block; font-family:var(--font-mono); font-size:10px; color:var(--dim); margin-top:3px; line-height:1.4; }
+  .ruta-chip.active .ruta-paradas{ color:var(--glow); }
+  .rutas-clear{
+    background:none; border:1px solid var(--line); color:var(--dim); font-size:12px;
+    padding:9px 14px; border-radius:12px; align-self:center;
+  }
+  .rutas-clear:hover{ color:var(--mid); border-color:var(--line-bright); }
+  .rutas-clear:disabled{ opacity:.4; cursor:default; pointer-events:none; }
+  .rutas-actions{ display:flex; gap:8px; flex-wrap:wrap; }
+
+  .real-map-panel{ margin-top:12px; }
+  .real-map-panel[hidden]{ display:none; }
+  .real-map-toolbar{ display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:10px; flex-wrap:wrap; }
+  .real-map-hint{ font-size:11.5px; color:var(--dim); font-family:var(--font-mono); line-height:1.5; max-width:520px; }
+  .muni-shape.in-route{ fill:rgba(154,150,142,.42); stroke:var(--mid); }
+  .route-line.dim{ stroke:var(--mid); stroke-width:1; stroke-dasharray:2,3; }
+  .route-line.dim.show{ opacity:.4; }
+  .route-line.active{ stroke:var(--glow); stroke-width:1.8; }
+  .route-line.active.show{ opacity:.95; }
+
+  .rutas-toolbar{ display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap; }
+  .rutas-toolbar input{
+    flex:1; min-width:160px;
+    background:var(--surface-2); border:1px solid var(--line); color:var(--ink);
+    font-size:12.5px; padding:9px 12px; border-radius:10px;
+  }
+  .rutas-toolbar input::placeholder{ color:var(--dim); }
+  .rutas-toolbar input:focus{ border-color:var(--mid); }
+  .rutas-chips-list{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:8px; }
+  .rutas-chips-list:empty{ display:none; }
+
+  .ruta-presupuesto{ display:block; font-family:var(--font-mono); font-size:10px; color:var(--dim); margin-top:2px; }
+  .ruta-chip.active .ruta-presupuesto{ color:var(--glow); }
+  .ruta-chip-wrap{ position:relative; }
+  .ruta-del-custom{
+    position:absolute; top:-6px; right:-6px; width:18px; height:18px; border-radius:50%;
+    background:var(--surface-3); border:1px solid var(--line-bright); color:var(--mid);
+    font-size:11px; line-height:1; display:flex; align-items:center; justify-content:center;
+  }
+  .ruta-del-custom:hover{ color:var(--ink); }
+
+  .add-ruta-form{
+    display:flex; flex-direction:column; gap:8px; background:var(--surface-2);
+    border:1px solid var(--line-bright); border-radius:10px; padding:12px; margin-top:6px;
+  }
+  .add-ruta-form[hidden]{ display:none; }
+  .add-ruta-form input{
+    background:var(--surface-3); border:1px solid var(--line); color:var(--ink);
+    border-radius:7px; padding:9px 11px; font-size:13px;
+  }
+  .add-ruta-form input::placeholder{ color:var(--dim); }
+  .add-ruta-form input:focus{ border-color:var(--mid); }
+  .ruta-paradas-chips{ display:flex; flex-wrap:wrap; gap:6px; }
+  .ruta-paradas-chips:empty::after{ content:'Aún no has agregado paradas.'; font-size:11.5px; color:var(--dim); }
+  .parada-chip{
+    display:flex; align-items:center; gap:6px; background:var(--surface-3); border:1px solid var(--line-bright);
+    border-radius:14px; padding:5px 6px 5px 11px; font-size:12px; color:var(--ink);
+  }
+  .parada-chip button{
+    width:16px; height:16px; border-radius:50%; background:none; border:none; color:var(--dim);
+    font-size:12px; line-height:1; display:flex; align-items:center; justify-content:center;
+  }
+  .parada-chip button:hover{ color:var(--ink); }
+  .ruta-parada-search-wrap{ position:relative; }
+
+  .route-line{
+    fill:none;
+    stroke:var(--glow);
+    stroke-width:1.4;
+    stroke-dasharray:3,2.4;
+    vector-effect:non-scaling-stroke;
+    opacity:0;
+    transition:opacity .5s ease;
+    pointer-events:none;
+  }
+  .route-line.show{ opacity:.85; }
+
+  .place-pin{
+    opacity:0;
+    transition:opacity .3s ease, transform .3s cubic-bezier(.34,1.56,.64,1);
+    transform:translateY(-4px);
+    pointer-events:none;
+  }
+  .place-pin.show{ opacity:1; transform:translateY(0); }
+  .place-pin path{
+    fill:var(--glow-strong);
+    stroke:var(--void);
+    stroke-width:1;
+    vector-effect:non-scaling-stroke;
+    filter:drop-shadow(0 2px 3px rgba(0,0,0,.5));
+  }
+  .place-pin circle{ fill:var(--void); }
 
   /* ---------- FOOTER ---------- */
   .footnote{ display:flex; justify-content:center; padding-top:26px; }
@@ -582,6 +735,45 @@
     </div>
   </header>
 
+  <div class="view-tabs">
+    <button type="button" class="view-tab active" data-view="mapa">Mapa</button>
+    <button type="button" class="view-tab" data-view="rutas">Rutas</button>
+    <button type="button" class="view-tab" data-view="realmap">Resumen de rutas</button>
+  </div>
+  <div id="rutasPanel" class="rutas-panel" hidden>
+    <div class="rutas-toolbar">
+      <input type="number" id="presupuestoFilter" placeholder="Presupuesto máx. (COP)" min="0" />
+      <button type="button" id="addRutaBtn" class="add-lugar-btn">+ Crear ruta</button>
+    </div>
+    <div id="rutasChipsList" class="rutas-chips-list"></div>
+    <div class="rutas-actions">
+      <button type="button" class="rutas-clear" id="rutasClearBtn">Quitar ruta del mapa</button>
+      <button type="button" class="rutas-clear" id="rutaGoogleMapsBtn" disabled>Abrir en Google Maps</button>
+      <button type="button" class="rutas-clear" id="rutasRestoreBtn" hidden>Restaurar rutas predeterminadas</button>
+    </div>
+
+    <div id="addRutaForm" class="add-ruta-form" hidden>
+      <input type="text" id="rutaNombreInput" placeholder="Nombre de la ruta" />
+      <input type="number" id="rutaPresupuestoInput" placeholder="Presupuesto (COP, opcional)" min="0" />
+      <div id="rutaParadasChips" class="ruta-paradas-chips"></div>
+      <div class="ruta-parada-search-wrap">
+        <input type="text" id="rutaParadaSearchInput" placeholder="Buscar pueblo para agregar…" autocomplete="off" />
+        <div id="rutaParadaResults" class="search-results" hidden></div>
+      </div>
+      <div class="add-lugar-actions">
+        <button type="button" id="rutaCancelBtn" class="btn-sm cancel">Cancelar</button>
+        <button type="button" id="rutaSaveBtn" class="btn-sm save">Guardar ruta</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="realMapPanel" class="real-map-panel" hidden>
+    <div class="real-map-toolbar">
+      <span class="real-map-hint">Aquí se marcan a la vez todas las rutas que has creado: los municipios por los que pasan se ven en gris, y en dorado los que ya visitaste. La ruta activa (si eliges una en «Rutas») se resalta más.</span>
+      <button type="button" class="rutas-clear" id="realMapGoogleMapsBtn" disabled>Abrir en Google Maps</button>
+    </div>
+  </div>
+
   <main class="map-stage" id="mapStage">
     <svg id="map" viewBox="0 0 532.0 718.3171160997857" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mapa de Colombia con departamentos y municipios delimitados">
       <rect id="panCatcher" x="0" y="0" width="532.0" height="718.3171160997857" fill="transparent"></rect>
@@ -589,6 +781,8 @@
         <path id="outline" class="outline" d="M 82.2,502.5 L 83.6,493.1 L 80.6,493.3 L 75.4,489.4 L 75.9,486.5 L 73.0,486.1 L 68.8,487.5 L 65.0,486.7 L 56.0,481.8 L 55.6,479.6 L 53.2,478.0 L 51.5,472.4 L 47.4,473.6 L 43.9,472.5 L 45.6,464.9 L 49.3,463.8 L 53.5,464.7 L 53.7,455.4 L 50.9,457.9 L 48.3,451.6 L 45.4,449.3 L 45.5,444.6 L 43.0,442.2 L 42.3,445.0 L 40.9,442.1 L 37.6,439.8 L 36.0,434.6 L 42.3,421.9 L 51.0,415.5 L 58.1,414.6 L 61.4,417.1 L 64.7,415.4 L 66.4,416.2 L 67.2,414.6 L 71.9,414.2 L 71.5,412.0 L 73.9,410.5 L 76.5,404.2 L 75.7,402.2 L 83.2,393.9 L 81.1,393.3 L 89.4,384.9 L 88.2,383.5 L 90.8,380.1 L 93.6,379.6 L 95.3,376.8 L 95.5,370.0 L 91.5,369.6 L 90.1,365.4 L 94.2,363.1 L 93.0,360.2 L 90.3,362.3 L 88.5,366.3 L 82.1,358.5 L 82.1,353.5 L 86.1,352.3 L 88.7,347.3 L 89.8,341.3 L 90.3,333.4 L 89.0,332.0 L 87.9,326.2 L 86.4,309.0 L 87.3,307.4 L 82.2,305.0 L 82.9,302.0 L 86.1,300.4 L 89.3,300.6 L 92.2,296.9 L 92.5,293.8 L 89.5,286.2 L 83.7,278.4 L 86.6,277.0 L 89.9,264.6 L 87.1,261.8 L 86.8,259.3 L 81.8,258.7 L 80.4,255.0 L 74.9,251.7 L 76.7,247.0 L 68.2,238.6 L 71.7,229.2 L 74.9,227.7 L 73.7,220.7 L 77.4,221.7 L 80.4,227.3 L 83.3,224.4 L 90.3,212.2 L 95.5,209.9 L 90.9,197.5 L 88.9,196.7 L 87.5,191.2 L 85.0,188.9 L 89.1,183.2 L 92.8,190.0 L 97.5,192.4 L 101.1,198.4 L 103.2,198.3 L 104.7,203.9 L 107.0,206.6 L 105.4,207.3 L 105.5,211.5 L 112.2,211.3 L 111.8,193.0 L 109.3,189.0 L 105.3,187.2 L 106.9,184.1 L 116.1,182.2 L 116.9,180.3 L 128.7,171.9 L 133.7,165.2 L 134.6,160.5 L 144.1,152.1 L 149.6,154.2 L 156.5,151.3 L 157.6,144.7 L 155.1,140.1 L 159.3,123.9 L 158.2,120.2 L 160.5,119.0 L 160.1,115.8 L 158.5,114.2 L 160.6,112.5 L 160.2,108.5 L 164.7,104.2 L 168.6,103.4 L 169.9,99.6 L 171.3,99.8 L 177.2,96.3 L 183.1,90.1 L 184.9,90.0 L 185.8,87.8 L 200.0,92.6 L 208.6,91.6 L 210.5,88.9 L 209.6,83.3 L 213.2,78.8 L 215.8,79.6 L 219.6,78.7 L 224.4,81.2 L 232.0,82.1 L 247.0,80.8 L 268.4,64.7 L 278.6,61.7 L 287.2,57.5 L 291.1,49.0 L 290.9,43.8 L 297.8,43.1 L 296.6,45.9 L 298.0,47.3 L 301.9,44.9 L 299.2,41.5 L 301.9,39.3 L 304.0,41.2 L 311.0,36.0 L 314.2,36.0 L 324.3,39.8 L 330.8,49.8 L 330.0,53.0 L 326.1,54.9 L 320.6,60.4 L 297.2,67.4 L 286.9,86.2 L 278.6,87.4 L 273.9,95.3 L 271.7,96.3 L 267.4,105.3 L 261.5,113.8 L 261.1,126.2 L 257.7,133.7 L 258.7,136.3 L 254.4,147.8 L 250.8,150.0 L 243.3,162.8 L 250.8,162.6 L 254.9,159.2 L 257.5,158.8 L 259.0,161.7 L 258.2,163.8 L 259.7,165.9 L 262.2,164.4 L 266.7,165.6 L 271.0,184.4 L 281.3,194.7 L 282.7,202.2 L 282.0,204.2 L 283.0,206.8 L 277.5,210.4 L 278.6,212.1 L 278.8,225.6 L 277.9,227.7 L 280.3,231.5 L 288.7,232.0 L 290.5,234.3 L 289.8,237.3 L 294.6,245.6 L 298.4,246.6 L 306.3,244.5 L 313.0,246.0 L 330.3,245.8 L 331.8,247.7 L 335.4,247.7 L 341.1,244.2 L 347.0,243.4 L 352.8,244.2 L 354.5,246.8 L 357.3,246.8 L 361.5,249.6 L 369.5,247.9 L 396.2,281.7 L 399.5,280.2 L 400.8,282.3 L 403.6,282.7 L 408.0,278.4 L 411.1,277.2 L 426.7,280.9 L 428.5,279.5 L 436.9,278.6 L 440.2,279.4 L 448.0,276.9 L 450.6,278.2 L 458.0,273.5 L 466.6,274.7 L 472.7,278.5 L 471.3,280.9 L 474.2,286.5 L 467.6,292.1 L 465.9,296.2 L 465.7,299.6 L 467.2,303.5 L 466.2,306.1 L 457.4,312.8 L 458.5,315.0 L 457.2,319.3 L 459.1,322.5 L 457.9,326.7 L 458.7,336.0 L 457.2,343.1 L 459.7,345.3 L 460.8,349.4 L 459.1,351.2 L 459.5,354.5 L 461.9,358.7 L 466.7,372.9 L 471.0,372.5 L 474.8,383.6 L 477.2,384.7 L 478.3,386.9 L 477.4,389.2 L 457.0,407.5 L 458.5,409.0 L 466.3,409.4 L 468.6,413.0 L 468.4,415.1 L 471.5,415.2 L 483.1,427.4 L 481.8,431.3 L 484.1,435.9 L 486.0,435.8 L 486.6,439.1 L 485.6,441.8 L 487.6,443.6 L 493.5,459.2 L 493.8,463.2 L 496.0,465.5 L 495.1,468.6 L 496.0,471.0 L 487.0,473.4 L 486.5,469.7 L 484.4,467.5 L 487.5,465.4 L 486.0,456.7 L 484.8,456.4 L 485.2,449.0 L 481.6,444.4 L 478.7,444.9 L 477.0,441.6 L 476.6,436.7 L 477.6,435.4 L 476.1,432.7 L 474.2,432.5 L 473.0,434.5 L 467.6,436.3 L 467.1,439.3 L 464.1,440.7 L 460.3,440.5 L 456.1,445.1 L 455.2,448.6 L 447.6,444.6 L 446.0,442.1 L 443.2,442.4 L 440.6,447.4 L 442.6,448.0 L 445.3,451.6 L 397.6,451.7 L 392.1,449.7 L 387.8,451.5 L 383.9,451.5 L 382.5,452.9 L 380.0,452.1 L 380.0,476.8 L 381.2,477.3 L 383.9,475.4 L 386.7,477.1 L 400.4,476.4 L 405.1,480.0 L 407.4,491.9 L 405.1,494.7 L 402.3,495.3 L 401.3,493.4 L 398.9,494.7 L 394.1,490.1 L 388.2,493.9 L 386.2,492.9 L 384.8,494.7 L 376.5,497.1 L 372.5,496.7 L 371.5,525.0 L 377.8,531.7 L 389.1,538.0 L 390.6,543.2 L 389.1,548.4 L 392.4,552.3 L 392.3,554.3 L 396.1,558.0 L 397.5,562.7 L 396.2,566.5 L 397.4,571.6 L 396.2,572.4 L 376.6,682.3 L 370.6,676.3 L 367.2,675.2 L 366.9,671.0 L 362.1,666.5 L 360.3,666.1 L 355.2,669.0 L 352.1,667.0 L 348.7,667.2 L 346.4,665.9 L 371.7,625.7 L 371.1,622.0 L 365.5,621.7 L 363.9,617.7 L 359.5,615.5 L 357.0,616.6 L 354.8,614.7 L 349.6,614.8 L 348.3,610.1 L 341.4,607.5 L 340.3,605.0 L 337.7,606.2 L 336.0,604.5 L 333.8,606.9 L 330.1,607.4 L 330.3,609.3 L 327.7,611.1 L 326.3,609.7 L 322.9,611.0 L 319.8,610.1 L 317.8,607.3 L 310.8,604.4 L 306.8,604.9 L 305.4,603.2 L 302.9,603.8 L 299.7,610.5 L 295.8,610.5 L 294.5,609.4 L 291.7,611.9 L 282.2,615.3 L 280.9,613.1 L 276.1,612.6 L 271.9,610.1 L 269.6,613.7 L 266.9,611.7 L 261.3,613.5 L 258.3,609.6 L 255.6,610.4 L 251.6,606.3 L 254.0,597.9 L 252.9,596.8 L 253.4,591.7 L 249.5,586.8 L 244.6,588.6 L 238.0,585.8 L 236.7,584.5 L 238.6,576.9 L 233.1,568.0 L 231.1,566.8 L 227.6,567.6 L 223.9,566.1 L 222.5,562.4 L 220.0,562.3 L 217.8,559.9 L 208.2,556.6 L 208.5,550.7 L 204.2,543.4 L 203.7,540.1 L 198.0,536.6 L 196.5,534.0 L 190.7,532.2 L 188.7,526.7 L 185.7,528.1 L 182.8,527.5 L 177.4,522.3 L 172.2,520.4 L 169.4,523.5 L 158.0,519.8 L 155.5,516.9 L 151.4,517.4 L 143.0,510.8 L 140.9,507.0 L 139.2,505.9 L 136.5,506.2 L 135.6,504.1 L 133.5,504.2 L 129.1,501.8 L 128.2,503.7 L 125.3,503.9 L 125.3,509.3 L 118.6,510.1 L 112.8,507.4 L 108.3,509.3 L 100.5,507.4 L 98.1,504.2 L 90.9,504.4 L 82.2,502.5 Z" />
         <g id="muniLayer" aria-hidden="true"></g>
         <g id="deptLayer" aria-hidden="true"></g>
+        <g id="routesLayer" aria-hidden="true"></g>
+        <g id="pinLayer" aria-hidden="true"></g>
         <g class="inset-group" aria-hidden="true">
           <rect class="inset-frame" x="63" y="29" width="62" height="60" rx="4"></rect>
           <text class="inset-label" x="94" y="23">SAN ANDRÉS Y PROVIDENCIA</text>
@@ -596,6 +790,7 @@
       </g>
     </svg>
     <div class="zoom-controls">
+      <button id="expandBtn" type="button" aria-label="Expandir mapa a pantalla completa">&#9974;</button>
       <button id="zoomInBtn" type="button" aria-label="Acercar">+</button>
       <button id="zoomOutBtn" type="button" aria-label="Alejar">&minus;</button>
       <button id="zoomResetBtn" type="button" aria-label="Restablecer vista">&#10021;</button>
@@ -696,6 +891,62 @@
 
   var MUNICIPIOS_BY_ID = {};
   MUNICIPIOS.forEach(function(m){ MUNICIPIOS_BY_ID[m.id] = m; });
+
+  var RUTAS = [{"id":"eje-cafetero","nombre":"Ruta del Eje Cafetero","paradas":["m17653","m17001","m66682","m66001","m63272","m63690","m63001"]},{"id":"caribe","nombre":"Ruta Caribe","paradas":["m13001","m08001","m47001","m44001","m44847"]},{"id":"camino-real","nombre":"Camino Real Santander-Boyacá","paradas":["m68001","m68307","m68679","m68079","m15407","m15001"]},{"id":"antioquia-oriente-occidente","nombre":"Antioquia: Oriente y Occidente","paradas":["m05042","m05001","m05321"]},{"id":"suroeste-antioqueno","nombre":"Suroeste Antioqueño","paradas":["m05001","m05368","m05364"]},{"id":"sur-andina","nombre":"Ruta Sur-Andina","paradas":["m19001","m52001","m52356"]},{"id":"llanos","nombre":"Ruta de los Llanos","paradas":["m50001","m50350"]}];
+  var RUTAS_BY_ID = {};
+  RUTAS.forEach(function(r){ RUTAS_BY_ID[r.id] = r; });
+  var routesLayer, pinLayer;
+  var activeRutaId = null;
+
+  // Debe coincidir exactamente con la proyección usada al generar el mapa.
+  var PROJ = { lonMin: -78.71319071479101, latMax: 12.440104837867828, scale: 38.795222110131135, pad: 36.0 };
+
+  function unprojectToLatLng(x, y){
+    return {
+      lng: PROJ.lonMin + (x - PROJ.pad) / PROJ.scale,
+      lat: PROJ.latMax - (y - PROJ.pad) / PROJ.scale
+    };
+  }
+
+  function getCustomRutas(){
+    if(!Array.isArray(state.__customRutas)) state.__customRutas = [];
+    return state.__customRutas;
+  }
+
+  function getHiddenRutaIds(){
+    if(!Array.isArray(state.__hiddenRutaIds)) state.__hiddenRutaIds = [];
+    return state.__hiddenRutaIds;
+  }
+
+  function allRutas(){
+    var hidden = getHiddenRutaIds();
+    return RUTAS.filter(function(r){ return hidden.indexOf(r.id) === -1; }).concat(getCustomRutas());
+  }
+
+  function googleMapsUrlForRuta(ruta){
+    var pts = ruta.paradas.map(function(id){ return MUNICIPIOS_BY_ID[id]; }).filter(Boolean);
+    if(pts.length < 2) return null;
+    var lls = pts.map(function(p){ return unprojectToLatLng(p.x, p.y); });
+    var fmt = function(ll){ return ll.lat.toFixed(6) + ',' + ll.lng.toFixed(6); };
+    var url = 'https://www.google.com/maps/dir/?api=1&travelmode=driving' +
+      '&origin=' + encodeURIComponent(fmt(lls[0])) +
+      '&destination=' + encodeURIComponent(fmt(lls[lls.length - 1]));
+    var waypoints = lls.slice(1, -1).map(fmt).join('|');
+    if(waypoints) url += '&waypoints=' + encodeURIComponent(waypoints);
+    return url;
+  }
+
+  function openRutaInGoogleMaps(rutaId){
+    var ruta = findRuta(rutaId);
+    if(!ruta){ showToast('Selecciona una ruta primero.'); return; }
+    var url = googleMapsUrlForRuta(ruta);
+    if(!url){ showToast('Esta ruta necesita al menos 2 paradas.'); return; }
+    window.open(url, '_blank', 'noopener');
+  }
+
+  function fmtCOP(n){
+    return '$' + fmtNum(Math.round(n));
+  }
 
   var LUGAR_CATS = ['hoteles','comida','diversion','guias'];
   var currentLugarCat = 'hoteles';
@@ -1070,6 +1321,335 @@
     if(tooltipEl) tooltipEl.hidden = true;
   }
 
+  /* ---------------- rutas & pins ---------------- */
+
+  function findRuta(id){
+    return RUTAS_BY_ID[id] || getCustomRutas().filter(function(r){ return r.id === id; })[0] || null;
+  }
+
+  function renderRutasChips(){
+    var list = document.getElementById('rutasChipsList');
+    var filterVal = document.getElementById('presupuestoFilter').value;
+    var maxBudget = filterVal !== '' ? Number(filterVal) : null;
+
+    var rutas = allRutas().filter(function(r){
+      if(maxBudget === null) return true;
+      if(r.presupuesto == null) return true; // routes without a set budget are never filtered out
+      return r.presupuesto <= maxBudget;
+    });
+
+    list.innerHTML = rutas.map(function(r){
+      var stopNames = r.paradas.map(function(id){
+        var m = MUNICIPIOS_BY_ID[id];
+        return m ? m.name : '';
+      }).join(' · ');
+      var presupuestoLine = r.presupuesto != null ? '<span class="ruta-presupuesto">' + fmtCOP(r.presupuesto) + '</span>' : '';
+      var delBtn = '<button type="button" class="ruta-del-custom" data-del-ruta="' + r.id + '" aria-label="Quitar ruta">\u00d7</button>';
+      return '<div class="ruta-chip-wrap">' +
+        '<button type="button" class="ruta-chip' + (r.id===activeRutaId ? ' active' : '') + '" data-ruta="' + r.id + '">' +
+        escapeHtml(r.nombre) +
+        '<span class="ruta-paradas">' + escapeHtml(stopNames) + '</span>' +
+        presupuestoLine +
+        '</button>' + delBtn +
+        '</div>';
+    }).join('');
+
+    if(!rutas.length){
+      list.innerHTML = '<p class="lugares-empty">Ninguna ruta coincide con ese presupuesto.</p>';
+    }
+
+    document.getElementById('rutasRestoreBtn').hidden = getHiddenRutaIds().length === 0;
+    updateGoogleMapsButtons();
+  }
+
+  function updateGoogleMapsButtons(){
+    var enabled = !!(activeRutaId && findRuta(activeRutaId));
+    ['rutaGoogleMapsBtn', 'realMapGoogleMapsBtn'].forEach(function(id){
+      var btn = document.getElementById(id);
+      if(btn) btn.disabled = !enabled;
+    });
+  }
+
+  function clearRouteDisplay(){
+    if(routesLayer) routesLayer.innerHTML = '';
+    if(pinLayer) pinLayer.innerHTML = '';
+    document.querySelectorAll('.ruta-chip').forEach(function(c){ c.classList.remove('active'); });
+    activeRutaId = null;
+    updateGoogleMapsButtons();
+    renderRealMap();
+  }
+
+  function removeRuta(id){
+    var custom = getCustomRutas();
+    var idx = custom.map(function(r){ return r.id; }).indexOf(id);
+    if(idx !== -1){
+      custom.splice(idx, 1);
+    } else {
+      var hidden = getHiddenRutaIds();
+      if(hidden.indexOf(id) === -1) hidden.push(id);
+    }
+    saveState();
+    if(activeRutaId === id) clearRouteDisplay();
+    renderRutasChips();
+    renderRealMap();
+  }
+
+  function restoreDefaultRutas(){
+    state.__hiddenRutaIds = [];
+    saveState();
+    renderRutasChips();
+    renderRealMap();
+    showToast('Rutas predeterminadas restauradas.');
+  }
+
+  function addPin(x, y){
+    var g = document.createElementNS(svgNS,'g');
+    g.setAttribute('class','place-pin');
+    g.setAttribute('transform', 'translate(' + x + ',' + y + ')');
+    var path = document.createElementNS(svgNS,'path');
+    path.setAttribute('d', 'M 0,0 C -2,-6 -9,-11 -9,-17 A9,9 0 1,1 9,-17 C9,-11 2,-6 0,0 Z');
+    var hole = document.createElementNS(svgNS,'circle');
+    hole.setAttribute('cx','0'); hole.setAttribute('cy','-17'); hole.setAttribute('r','3.3');
+    g.appendChild(path);
+    g.appendChild(hole);
+    pinLayer.appendChild(g);
+    requestAnimationFrame(function(){ g.classList.add('show'); });
+    return g;
+  }
+
+  function straightRouteD(pts){
+    return 'M ' + pts.map(function(p){ return p.x + ',' + p.y; }).join(' L ');
+  }
+
+  function drawRoute(ruta){
+    if(!routesLayer || !pinLayer) return;
+    routesLayer.innerHTML = '';
+    pinLayer.innerHTML = '';
+    var pts = ruta.paradas.map(function(id){ return MUNICIPIOS_BY_ID[id]; }).filter(Boolean);
+    if(pts.length < 2) return;
+
+    // Línea recta entre paradas — funciona sin configuración adicional.
+    // Para las vías reales, usa el botón "Abrir en Google Maps".
+    var path = document.createElementNS(svgNS,'path');
+    path.setAttribute('class','route-line');
+    path.setAttribute('d', straightRouteD(pts));
+    routesLayer.appendChild(path);
+    requestAnimationFrame(function(){ path.classList.add('show'); });
+    pts.forEach(function(p){ addPin(p.x, p.y); });
+  }
+
+  function routesForMuni(id){
+    return allRutas().filter(function(r){ return r.paradas.indexOf(id) !== -1; });
+  }
+
+  function zoomToBounds(pts, padding){
+    if(!pts.length) return;
+    padding = padding || 45;
+    var xs = pts.map(function(p){ return p.x; });
+    var ys = pts.map(function(p){ return p.y; });
+    var minX = Math.min.apply(null, xs), maxX = Math.max.apply(null, xs);
+    var minY = Math.min.apply(null, ys), maxY = Math.max.apply(null, ys);
+    var w = Math.max(maxX - minX, 12);
+    var h = Math.max(maxY - minY, 12);
+    var kx = (VB_W - padding*2) / w;
+    var ky = (VB_H - padding*2) / h;
+    var newK = Math.max(K_MIN, Math.min(K_MAX, Math.min(kx, ky)));
+    var cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
+    view.k = newK;
+    view.x = VB_W/2 - cx*newK;
+    view.y = VB_H/2 - cy*newK;
+    clampView();
+    applyView();
+  }
+
+  function selectRuta(rutaId){
+    var ruta = findRuta(rutaId);
+    if(!ruta) return;
+    activeRutaId = rutaId;
+    renderRutasChips();
+    drawRoute(ruta);
+    renderRealMap();
+    var pts = ruta.paradas.map(function(id){ return MUNICIPIOS_BY_ID[id]; }).filter(Boolean);
+    zoomToBounds(pts, 45);
+  }
+
+  /* ---------------- resumen de rutas (mismo mapa) ---------------- */
+
+  var overviewMode = false;
+
+  // Every municipio that belongs to at least one route (default or custom, not hidden).
+  function routedMuniIds(){
+    var set = {};
+    allRutas().forEach(function(r){
+      r.paradas.forEach(function(id){ set[id] = true; });
+    });
+    return set;
+  }
+
+  function clearRouteOverviewShading(){
+    document.querySelectorAll('.muni-shape.in-route').forEach(function(g){ g.classList.remove('in-route'); });
+  }
+
+  // Llamado cuando se marca/desmarca un municipio como visitado, para refrescar
+  // su color en el resumen de rutas si está a la vista.
+  function refreshRealMapMuni(id){
+    if(!overviewMode) return;
+    var g = pointElements[id];
+    if(!g) return;
+    var inRoute = !!routedMuniIds()[id];
+    g.classList.toggle('in-route', inRoute && !hasVisited(id));
+  }
+
+  function setRouteOverviewMode(on){
+    overviewMode = on;
+    if(on){
+      renderRealMap();
+    } else {
+      clearRouteOverviewShading();
+      var ruta = activeRutaId ? findRuta(activeRutaId) : null;
+      if(ruta) drawRoute(ruta);
+      else if(routesLayer && pinLayer){ routesLayer.innerHTML = ''; pinLayer.innerHTML = ''; }
+    }
+  }
+
+  // Dibuja TODAS las rutas creadas a la vez sobre el mismo mapa: sombrea en gris
+  // cada municipio por el que pasa alguna ruta (dorado si ya fue visitado) y traza
+  // una línea recta por ruta — más marcada para la ruta activa.
+  function renderRealMap(){
+    if(!overviewMode || !routesLayer || !pinLayer) return;
+    clearRouteOverviewShading();
+
+    var routed = routedMuniIds();
+    Object.keys(routed).forEach(function(id){
+      if(hasVisited(id)) return; // ya se resalta en dorado por .visited
+      var g = pointElements[id];
+      if(g) g.classList.add('in-route');
+    });
+
+    routesLayer.innerHTML = '';
+    pinLayer.innerHTML = '';
+    allRutas().forEach(function(r){
+      var pts = r.paradas.map(function(id){ return MUNICIPIOS_BY_ID[id]; }).filter(Boolean);
+      if(pts.length < 2) return;
+      var path = document.createElementNS(svgNS,'path');
+      path.setAttribute('class', 'route-line' + (r.id === activeRutaId ? ' active' : ' dim'));
+      path.setAttribute('d', straightRouteD(pts));
+      routesLayer.appendChild(path);
+      requestAnimationFrame(function(){ path.classList.add('show'); });
+    });
+
+    if(activeRutaId){
+      var activeRuta = findRuta(activeRutaId);
+      if(activeRuta){
+        activeRuta.paradas.map(function(id){ return MUNICIPIOS_BY_ID[id]; }).filter(Boolean)
+          .forEach(function(p){ addPin(p.x, p.y); });
+      }
+    }
+
+    updateGoogleMapsButtons();
+  }
+
+  /* ---------------- crear ruta (usuario) ---------------- */
+
+  var pendingRutaParadas = [];
+
+  function toggleAddRutaForm(show){
+    document.getElementById('addRutaForm').hidden = !show;
+    document.getElementById('addRutaBtn').hidden = show;
+    if(show){
+      document.getElementById('rutaNombreInput').value = '';
+      document.getElementById('rutaPresupuestoInput').value = '';
+      document.getElementById('rutaParadaSearchInput').value = '';
+      pendingRutaParadas = [];
+      renderPendingParadas();
+      document.getElementById('rutaNombreInput').focus();
+    }
+  }
+
+  function renderPendingParadas(){
+    var box = document.getElementById('rutaParadasChips');
+    box.innerHTML = pendingRutaParadas.map(function(id, idx){
+      var m = MUNICIPIOS_BY_ID[id];
+      return '<span class="parada-chip">' + (idx+1) + '. ' + escapeHtml(m ? m.name : id) +
+        '<button type="button" data-remove-parada="' + idx + '" aria-label="Quitar parada">\u00d7</button></span>';
+    }).join('');
+  }
+
+  function wireRutaCreation(){
+    document.getElementById('addRutaBtn').addEventListener('click', function(){ toggleAddRutaForm(true); });
+    document.getElementById('rutaCancelBtn').addEventListener('click', function(){ toggleAddRutaForm(false); });
+
+    document.getElementById('rutaParadasChips').addEventListener('click', function(e){
+      var btn = e.target.closest ? e.target.closest('[data-remove-parada]') : null;
+      if(!btn) return;
+      var idx = Number(btn.getAttribute('data-remove-parada'));
+      pendingRutaParadas.splice(idx, 1);
+      renderPendingParadas();
+    });
+
+    var paradaInput = document.getElementById('rutaParadaSearchInput');
+    var paradaResults = document.getElementById('rutaParadaResults');
+
+    paradaInput.addEventListener('input', function(){
+      var q = stripDiacritics(paradaInput.value.trim());
+      if(!q){ paradaResults.hidden = true; paradaResults.innerHTML = ''; return; }
+      var matches = [];
+      for(var i=0;i<MUNICIPIOS.length && matches.length < 8;i++){
+        var m = MUNICIPIOS[i];
+        if(pendingRutaParadas.indexOf(m.id) !== -1) continue;
+        if(stripDiacritics(m.name).indexOf(q) !== -1 || stripDiacritics(m.depto).indexOf(q) !== -1){
+          matches.push(m);
+        }
+      }
+      if(!matches.length){
+        paradaResults.innerHTML = '<div class="search-empty">Sin resultados</div>';
+        paradaResults.hidden = false;
+        return;
+      }
+      paradaResults.innerHTML = matches.map(function(m){
+        return '<button type="button" class="search-item" data-id="' + m.id + '">' +
+          '<span class="si-name">' + escapeHtml(m.name) + '</span>' +
+          '<span class="si-depto">' + escapeHtml(m.depto) + '</span>' +
+          '</button>';
+      }).join('');
+      paradaResults.hidden = false;
+    });
+
+    paradaResults.addEventListener('click', function(e){
+      var btn = e.target.closest ? e.target.closest('.search-item') : null;
+      if(!btn) return;
+      pendingRutaParadas.push(btn.getAttribute('data-id'));
+      renderPendingParadas();
+      paradaInput.value = '';
+      paradaResults.hidden = true;
+      paradaResults.innerHTML = '';
+      paradaInput.focus();
+    });
+
+    document.getElementById('rutaSaveBtn').addEventListener('click', function(){
+      var nombre = document.getElementById('rutaNombreInput').value.trim();
+      if(!nombre){ document.getElementById('rutaNombreInput').focus(); return; }
+      if(pendingRutaParadas.length < 2){
+        showToast('Agrega al menos 2 paradas para crear la ruta.');
+        return;
+      }
+      var presupuestoRaw = document.getElementById('rutaPresupuestoInput').value;
+      var ruta = {
+        id: 'custom-' + Date.now().toString(36) + Math.random().toString(36).slice(2,6),
+        nombre: nombre,
+        presupuesto: presupuestoRaw !== '' ? Number(presupuestoRaw) : null,
+        paradas: pendingRutaParadas.slice()
+      };
+      getCustomRutas().push(ruta);
+      saveState();
+      toggleAddRutaForm(false);
+      renderRutasChips();
+      selectRuta(ruta.id);
+    });
+
+    document.getElementById('presupuestoFilter').addEventListener('input', renderRutasChips);
+  }
+
   /* ---------------- modal ---------------- */
 
   function updateToggleText(visited){
@@ -1122,6 +1702,7 @@
       }
     }
     updateCounters();
+    refreshRealMapMuni(currentModalId);
     var m = MUNICIPIOS_BY_ID[currentModalId];
     if(m) showToast(entry.visited ? (m.name + ' — encendido') : (m.name + ' — apagado'));
   }
@@ -1418,7 +1999,23 @@
     el('#searchInput').value = '';
     searchResultsEl.hidden = true;
     searchResultsEl.innerHTML = '';
-    zoomToPoint(id, 8);
+
+    var matches = routesForMuni(id);
+    if(matches.length){
+      var ruta = matches[0];
+      document.querySelectorAll('.ruta-chip').forEach(function(c){
+        c.classList.toggle('active', c.getAttribute('data-ruta') === ruta.id);
+      });
+      activeRutaId = ruta.id;
+      drawRoute(ruta);
+      zoomToPoint(id, 6);
+    } else {
+      clearRouteDisplay();
+      var m = MUNICIPIOS_BY_ID[id];
+      if(m) addPin(m.x, m.y);
+      zoomToPoint(id, 8);
+    }
+
     var g = pointElements[id];
     if(g){
       g.classList.add('search-ping');
@@ -1444,12 +2041,15 @@
   /* ---------------- reset ---------------- */
 
   function onReset(){
-    var ok = window.confirm('¿Reiniciar todo el progreso? Esto borrará visitas, reseñas, fotos y lugares guardados en este dispositivo.');
+    var ok = window.confirm('¿Reiniciar todo el progreso? Esto borrará visitas, reseñas, fotos, lugares y rutas creadas en este dispositivo.');
     if(!ok) return;
     state = {};
+    clearRouteDisplay();
     clearStorageKey().then(function(){
       applyAllStates();
       updateCounters();
+      renderRutasChips();
+      renderRealMap();
       showToast('Progreso reiniciado');
     });
   }
@@ -1492,6 +2092,33 @@
     document.getElementById('resetBtn').addEventListener('click', onReset);
     wireLugares();
 
+    document.querySelectorAll('.view-tab').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        document.querySelectorAll('.view-tab').forEach(function(b){ b.classList.toggle('active', b===btn); });
+        var view = btn.getAttribute('data-view');
+        document.getElementById('rutasPanel').hidden = (view !== 'rutas');
+        document.getElementById('realMapPanel').hidden = (view !== 'realmap');
+        setRouteOverviewMode(view === 'realmap');
+      });
+    });
+
+    document.getElementById('rutasPanel').addEventListener('click', function(e){
+      var delBtn = e.target.closest ? e.target.closest('[data-del-ruta]') : null;
+      if(delBtn){ removeRuta(delBtn.getAttribute('data-del-ruta')); return; }
+      var chip = e.target.closest ? e.target.closest('.ruta-chip') : null;
+      if(chip){ selectRuta(chip.getAttribute('data-ruta')); return; }
+      if(e.target.id === 'rutasClearBtn'){ clearRouteDisplay(); return; }
+      if(e.target.id === 'rutaGoogleMapsBtn'){ openRutaInGoogleMaps(activeRutaId); return; }
+      if(e.target.id === 'rutasRestoreBtn'){ restoreDefaultRutas(); }
+    });
+    wireRutaCreation();
+
+    document.getElementById('realMapGoogleMapsBtn').addEventListener('click', function(){
+      openRutaInGoogleMaps(activeRutaId);
+    });
+
+    document.getElementById('expandBtn').addEventListener('click', function(){ toggleExpanded(); });
+
     document.addEventListener('keydown', function(e){
       if(e.key !== 'Escape') return;
       var lb = document.getElementById('lightbox');
@@ -1500,7 +2127,20 @@
       if(!lb.hidden) closeLightbox();
       else if(!mo.hidden) closeModal();
       else if(sr && !sr.hidden) sr.hidden = true;
+      else if(isExpanded) toggleExpanded(false);
     });
+  }
+
+  /* ---------------- expand / fullscreen map ---------------- */
+
+  var isExpanded = false;
+
+  function toggleExpanded(force){
+    isExpanded = (typeof force === 'boolean') ? force : !isExpanded;
+    document.getElementById('mapStage').classList.toggle('expanded', isExpanded);
+    var btn = document.getElementById('expandBtn');
+    btn.setAttribute('aria-label', isExpanded ? 'Salir de pantalla completa' : 'Expandir mapa a pantalla completa');
+    btn.innerHTML = isExpanded ? '&times;' : '&#9974;';
   }
 
   /* ---------------- init ---------------- */
@@ -1508,6 +2148,8 @@
   function init(){
     mapSvg = document.getElementById('map');
     zoomLayer = document.getElementById('zoomLayer');
+    routesLayer = document.getElementById('routesLayer');
+    pinLayer = document.getElementById('pinLayer');
     buildMap();
     wireZoomPan();
     wireEvents();
@@ -1515,6 +2157,7 @@
     loadState().then(function(){
       applyAllStates();
       updateCounters();
+      renderRutasChips();
       traceInOutline();
     });
   }
